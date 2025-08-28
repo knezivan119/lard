@@ -5,6 +5,15 @@
 ### Base install
 `curl -s https://laravel.build/lard?with=pgsql | bash`
 
+#### Keep env in git
+It's not fun to have everything but working env example :)
+
+```bash
+mkdir _env
+mv .env _env/env.sail
+ln -sf _env/env.sail .env
+```
+
 #### Start
 `sail up`
 
@@ -49,7 +58,8 @@ class ForceJsonResponse
 {
     public function handle( Request $request, Closure $next )
     {
-        die( 'ForceJsonResponse: here I am' );
+        $request->headers->set( 'Accept', 'application/json' );
+        return $next( $request );
     }
 }
 ```
@@ -148,4 +158,59 @@ User::create( [
 curl -i -X POST http://localhost/api/v1/auth/login -H 'Content-Type: application/json' -d '{ "email": "tester@example.test", "password": "test", "device_name": "cli" }'
 TOKEN="<paste token here>"
 curl -s http://localhost/api/v1/me -H "Authorization: Bearer ${TOKEN}" | jq .
+```
+
+
+## Redis
+`sail artisan sail:install --with=pgsql,redis --no-interaction`
+
+Test, expect PONG:
+`sail exec redis redis-cli PING`
+
+```ini
+# .env
+# Cache through Redis
+CACHE_STORE=redis
+CACHE_PREFIX=api_backend_cache
+
+# Redis connection used by cache, queues, and anything else
+REDIS_HOST=redis
+REDIS_PASSWORD=null
+REDIS_PORT=6379
+REDIS_DB=0
+REDIS_CACHE_DB=1
+
+# Sessions in an API should be stateless. Avoids disk writes for an API that does not use cookies. If you later add web routes, switch to redis.
+SESSION_DRIVER=array
+
+# Queue stays sync for now (change to redis when you actually run a worker)
+QUEUE_CONNECTION=sync
+```
+
+`sail artisan config:clear`
+
+#### Test
+```php
+/// TINKER!
+use Illuminate\Support\Facades\Cache;
+
+Cache::put( 'probe', 'ok', 600 );  // 10 minutes
+Cache::get( 'probe' );             // expect 'ok'
+```
+`sail exec redis redis-cli -n 1 KEYS '*'`
+
+#### Maybe
+Only if things aren't working properly, try:
+`sail composer require predis/predis`
+
+## CORS
+
+`sail artisan config:publish cors`
+
+```ini
+# .env
+
+# Comma separated, no spaces
+CORS_ALLOWED_ORIGINS=http://localhost:5173
+
 ```
