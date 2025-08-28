@@ -204,6 +204,7 @@ Only if things aren't working properly, try:
 `sail composer require predis/predis`
 
 ## CORS
+**WARNING:** This is work in progress. It feels like it's not working properly - test is allowing both calls which is not what I would expect.
 
 ```ini
 # .env
@@ -244,5 +245,4 @@ curl -i -X OPTIONS http://localhost/api/v1/ping -H 'Origin: https://example.com'
 
 # Should work
 curl -i -X OPTIONS http://localhost/api/v1/ping -H 'Origin: https://localhos:5173' -H 'Access-Control-Request-Method: GET'
-
 ```
