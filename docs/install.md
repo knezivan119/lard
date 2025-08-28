@@ -205,12 +205,44 @@ Only if things aren't working properly, try:
 
 ## CORS
 
-`sail artisan config:publish cors`
-
 ```ini
 # .env
 
 # Comma separated, no spaces
 CORS_ALLOWED_ORIGINS=http://localhost:5173
+```
+```php
+/// bootstrap/app.php
+use Illuminate\Http\Middleware\HandleCors;
+
+// add inside withMiddleware( ... )
+$middleware->append( HandleCors::class );
+```
+
+`sail artisan config:publish cors`
+
+```php
+/// config/cors.php
+return [
+    'paths' => [ 'api/*', 'sanctum/csrf-cookie' ],
+    'allowed_methods' => [ '*' ],
+    'allowed_origins' => explode( ',', env( 'CORS_ALLOWED_ORIGINS', '' ) ),
+    'allowed_origins_patterns' => [],
+    'allowed_headers' => [ '*' ],
+    'exposed_headers' => [],
+    'max_age' => 3600,
+    'supports_credentials' => false,
+];
+```
+
+#### Test
+```bash
+sail artisan config:clear
+
+# Should fail
+curl -i -X OPTIONS http://localhost/api/v1/ping -H 'Origin: https://example.com' -H 'Access-Control-Request-Method: GET'
+
+# Should work
+curl -i -X OPTIONS http://localhost/api/v1/ping -H 'Origin: https://localhos:5173' -H 'Access-Control-Request-Method: GET'
 
 ```
