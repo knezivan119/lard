@@ -246,3 +246,78 @@ curl -i -X OPTIONS http://localhost/api/v1/ping -H 'Origin: https://example.com'
 # Should work
 curl -i -X OPTIONS http://localhost/api/v1/ping -H 'Origin: https://localhos:5173' -H 'Access-Control-Request-Method: GET'
 ```
+
+
+## Frontend
+Make very simple Welcome page, with *SCSS* support
+
+```php
+/// routes/web.php
+Route::get( '/', fn () => view( 'welcome' ) );
+```
+
+```html
+<!-- resources/views/welcome.blade.php -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Hello API</title>
+    @vite( 'resources/js/app.js' )
+</head>
+<body>
+    <main>
+        <h1>Hello API</h1>
+        <p>This is a minimal Blade page served by the API project.</p>
+    </main>
+</body>
+</html>
+```
+
+```js
+/// resources/js/app.js
+import '../scss/app.scss'; // add this to the file
+```
+
+```js
+/// vite.config.js
+import { defineConfig } from 'vite';
+import laravel from 'laravel-vite-plugin';
+
+export default defineConfig({
+    plugins: [
+        laravel( {
+            input: [ 'resources/js/app.js' ],
+            refresh: true,
+        } ),
+    ],
+});
+```
+
+```css
+/* resources/scss/app.scss */
+$brand: #0ea5e9;
+
+:root { --brand: #{$brand}; }
+
+body { background: black; color: silver; margin: 2em; }
+h1 { color: var(--brand); }
+```
+
+```bash
+sail npm ci || sail npm install
+sail npm add -D sass
+sail npm run dev
+```
+
+### Garbage cleanup
+
+```bash
+# remove Tailwind configs if present
+rm -f tailwind.config.js tailwind.config.ts postcss.config.js
+
+# remove the default Tailwind css file if you do not need it
+rm -f resources/css/app.css
+
+sail npm remove tailwindcss @tailwindcss/vite postcss autoprefixer
+```
