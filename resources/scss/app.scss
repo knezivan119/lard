@@ -1,6 +1,4 @@
-// Example SCSS with a variable
 $brand: #0ea5e9;
-// $brand: #ffa5e9;
 
 :root {
     --brand: #{$brand};

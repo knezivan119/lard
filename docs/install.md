@@ -88,7 +88,7 @@ use App\Http\Controllers\AuthController;
 Route::prefix( 'v1' )->group( function () {
     Route::post ( '/auth/login', [ AuthController::class, 'issueToken' ] );
     Route::middleware( 'auth:sanctum' )->get( '/me', fn () => auth()->user() );
-}
+});
 ```
 
 ```php
@@ -127,8 +127,7 @@ class AuthController extends Controller
 /// app/Models/User.php
 use Laravel\Sanctum\HasApiTokens;
 
-use HasApiTokens;
-
+use HasApiTokens; // inside class
 ```
 
 
@@ -244,12 +243,12 @@ sail artisan config:clear
 curl -i -X OPTIONS http://localhost/api/v1/ping -H 'Origin: https://example.com' -H 'Access-Control-Request-Method: GET'
 
 # Should work
-curl -i -X OPTIONS http://localhost/api/v1/ping -H 'Origin: https://localhos:5173' -H 'Access-Control-Request-Method: GET'
+curl -i -X OPTIONS http://localhost/api/v1/ping -H 'Origin: http://localhost:5173' -H 'Access-Control-Request-Method: GET'
 ```
 
 
 ## Frontend
-Make very simple Welcome page, with *SCSS* support
+Make very simple Welcome page, with *SCSS* support, no Tailwind
 
 ```php
 /// routes/web.php
@@ -321,3 +320,42 @@ rm -f resources/css/app.css
 
 sail npm remove tailwindcss @tailwindcss/vite postcss autoprefixer
 ```
+
+
+## Testing
+
+Test will use dedicated Postgres test DB. This just covers setup - how testing is organised should be in a separate `testing.md` file.
+
+```ini
+APP_ENV=testing
+APP_DEBUG=true
+
+DB_CONNECTION=pgsql
+DB_HOST=pgsql
+DB_PORT=5432
+DB_DATABASE=sail_test
+DB_USERNAME=sail
+DB_PASSWORD=password
+
+CACHE_STORE=array
+SESSION_DRIVER=array
+QUEUE_CONNECTION=sync
+MAIL_MAILER=array
+```
+
+```bash
+# create once; safe to re-run
+sail exec -T pgsql sh -lc '
+  PGPASSWORD="$POSTGRES_PASSWORD" psql -U "$POSTGRES_USER" -d postgres -tAc \
+    "SELECT 1 FROM pg_database WHERE datname = '\''sail_test'\''" \
+  | grep -q 1 || \
+  PGPASSWORD="$POSTGRES_PASSWORD" psql -U "$POSTGRES_USER" -d postgres -c \
+    "CREATE DATABASE sail_test;"
+'
+# test
+sail exec -T pgsql sh -lc 'PGPASSWORD="$POSTGRES_PASSWORD" psql -U "$POSTGRES_USER" -d sail_test -c "\conninfo"'
+
+sail test
+```
+
+Have a look if there is `testing.md` file for more.
