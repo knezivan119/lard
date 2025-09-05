@@ -14,7 +14,7 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->append( HandleCors::class );
-        $middleware->prependToGroup( 'api', \App\Http\Middleware\ForceJsonResponse::class );
+    //     $middleware->prependToGroup( 'api', \App\Http\Middleware\ForceJsonResponse::class );
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //
