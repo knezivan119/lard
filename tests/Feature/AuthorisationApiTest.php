@@ -27,10 +27,6 @@ class AuthorisationApiTest extends TestCase
         $routes = Route::getRoutes();
         $skip = [ 'GET', 'POST', 'PUT', 'PATCH', 'DELETE' ];
 
-        // $this->assertTrue( true );
-        // return;
-        // dd( $routes);
-
         foreach ( $routes as $route ) {
             $only_api = preg_match( '/^api\//', $route->uri() );
             $has_methods = array_intersect( $skip, $route->methods() );
@@ -50,7 +46,6 @@ class AuthorisationApiTest extends TestCase
             catch ( \Exception $e ) {
                 $this->fail( "Failed: {$method} /{$route->uri()}" );
             }
-
         }
     }
 
@@ -60,8 +55,10 @@ class AuthorisationApiTest extends TestCase
         $response = $this->postJson( $this->issueTokenUrl, [ ] );
 
         $response->assertStatus( 422 )
-                 ->assertJsonValidationErrors( [ 'email', 'password', 'device_name' ] );
+            ->assertJsonValidationErrors( [ 'email', 'password', 'device_name' ] )
+        ;
     }
+
 
     public function test_issueTokenRejectsInvalidCredentials( )
     {
@@ -73,13 +70,15 @@ class AuthorisationApiTest extends TestCase
         $payload = [
             'email'       => 'jane@example.com',
             'password'    => 'wrong-battery',
-            'device_name' => 'macbook-pro',
+            'device_name' => 'tester',
         ];
 
         $this->postJson( $this->issueTokenUrl, $payload )
-             ->assertStatus( 422 )
-             ->assertJson( [ 'message' => 'Invalid credentials' ] );
+            ->assertStatus( 422 )
+            ->assertJson( [ 'message' => 'Invalid credentials' ] )
+        ;
     }
+
 
     public function test_issueTokenReturnsTokenAndStoresPersonalAccessToken( )
     {
@@ -91,12 +90,13 @@ class AuthorisationApiTest extends TestCase
         $payload = [
             'email'       => 'jane@example.com',
             'password'    => 'secret-123',
-            'device_name' => 'macbook-pro',
+            'device_name' => 'tester',
         ];
 
         $response = $this->postJson( $this->issueTokenUrl, $payload )
-                         ->assertOk( )
-                         ->assertJsonStructure( [ 'token' ] );
+            ->assertOk( )
+            ->assertJsonStructure( [ 'token' ] )
+        ;
 
         $token = $response->json( 'token' );
 
@@ -106,14 +106,16 @@ class AuthorisationApiTest extends TestCase
         $this->assertDatabaseHas( 'personal_access_tokens', [
             'tokenable_id'   => $user->id,
             'tokenable_type' => User::class,
-            'name'           => 'macbook-pro',
+            'name'           => 'tester',
         ] );
     }
+
 
     public function test_currentRequiresAuthentication( )
     {
         $this->getJson( $this->currentUrl )->assertStatus( 401 );
     }
+
 
     public function test_currentReturnsAuthenticatedUserResource( )
     {
@@ -122,13 +124,14 @@ class AuthorisationApiTest extends TestCase
             'password' => Hash::make( 'secret-123' ),
         ] );
 
-        Sanctum::actingAs( $user );   /** or attach a token via Authorization header */
+        Sanctum::actingAs( $user );
 
         $this->getJson( $this->currentUrl )
-             ->assertOk( )
-             ->assertJsonFragment( [
-                 'id'    => $user->id,
-                 'email' => 'jane@example.com',
-             ] );  /** Adjust fields to match your UserCurrentResource */
+            ->assertOk( )
+            ->assertJsonFragment( [
+                'id'    => $user->id,
+                'email' => 'jane@example.com',
+            ] )
+        ;
     }
 }
