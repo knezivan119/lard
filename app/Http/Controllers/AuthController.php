@@ -32,10 +32,8 @@ class AuthController extends Controller
 
     public function current( Request $request )
     {
-        // die('babo glavu');
         $user = $request->user();
         // $user->loadMissing('meta', 'roles');
-        // return true;
         return new UserCurrentResource( $user );
     }
 }
