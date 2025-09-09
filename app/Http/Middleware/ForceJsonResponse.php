@@ -11,7 +11,6 @@ class ForceJsonResponse
     {
         // Make Laravel treat every API request as expecting JSON
         $request->headers->set( 'Accept', 'application/json' );
-
         return $next( $request );
     }
 }
