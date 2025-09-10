@@ -74,10 +74,10 @@ class User extends Authenticatable
 
 
     # RELATIONS ==============================================================
-    // public function meta(): Relations\HasOne
-    // {
-    //     return $this->hasOne( UserMeta::class );
-    // }
+    public function meta(): Relations\HasOne
+    {
+        return $this->hasOne( UserMeta::class );
+    }
 
     // public function customers(): Relations\HasMany
     // {

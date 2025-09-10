@@ -27,9 +27,9 @@ trait ServedAtTrait
             return true;
         }
 
-        if ( $check !== null ) {
-            return $check;
-        }
+        // if ( $check !== null ) {
+        //     return $check;
+        // }
 
         $check = $this->updated_at->lessThanOrEqualTo( Carbon::parse( request()->served_at ) );
         if ( !$check ) {
@@ -40,16 +40,16 @@ trait ServedAtTrait
     }
 
 
-    public static function checkServedAtManually( mixed $object, string $served_at )
-    {
-        $served_at = Carbon::parse( $served_at );
-        $check = $object->updated_at->lessThanOrEqualTo( $served_at );
+    // public static function checkServedAtManually( mixed $object, string $served_at )
+    // {
+    //     $served_at = Carbon::parse( $served_at );
+    //     $check = $object->updated_at->lessThanOrEqualTo( $served_at );
 
-        if ( !$check ) {
-            throw new \Exception( 'Conflict - Outdated data (2) ', 409 );
-        }
+    //     if ( !$check ) {
+    //         throw new \Exception( 'Conflict - Outdated data (2) ', 409 );
+    //     }
 
-        return $check;
-    }
+    //     return $check;
+    // }
 
 }

@@ -20,7 +20,7 @@ class AccountApiTest extends TestCase
 {
     use RefreshDatabase;
 
-    private string $baseUrl = '/api/v1/accounts';
+    public string $baseUrl = '/api/v1/accounts';
 
 
     protected function setUp(): void
@@ -28,29 +28,6 @@ class AccountApiTest extends TestCase
         parent::setUp();
 
         $this->artisan( 'db:seed', [ '--class' => 'Database\Seeders\TestingSeeder' ] );
-    }
-
-
-    private function signIn(): User
-    {
-        $accounts = Account::factory( 1 )->create();
-
-        $user = User::factory()->create();
-
-        $user->assignRole( 'admin' );
-        $user->accounts()->attach( $accounts->first()->id );
-
-        Sanctum::actingAs( $user );
-
-        // $user->loadMissing('accounts', 'roles');
-        // dd( $user->toArray() );
-        return $user;
-    }
-
-
-    private function url( ?int $id = null ): string
-    {
-        return $id ? $this->baseUrl . '/' . $id : $this->baseUrl;
     }
 
 
@@ -68,7 +45,7 @@ class AccountApiTest extends TestCase
     }
 
 
-    public function test_guest_is_unauthorised()
+    public function test_guestIsUnauthorised()
     {
         // $this->markTestIncomplete( 'Not implemnted yet' );
         // $this->markTestSkipped( 'Not implemnted yet' );
@@ -191,6 +168,7 @@ class AccountApiTest extends TestCase
             'name'       => 'Updated',
             'extra'  => [ 'style' => [ 'color' => 'blue' ], 'tags' => [ 'json' ] ],
             'data' => [ 'flags' => [ 'published' => false ], 'counts' => [ 'views' => 10 ] ],
+            'served_at' => Carbon::now(),
         ] );
 
         $this->putJson( $this->url( $account->id ), $updated )

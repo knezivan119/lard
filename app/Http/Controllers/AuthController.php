@@ -33,7 +33,8 @@ class AuthController extends Controller
     public function current( Request $request )
     {
         $user = $request->user();
-        // $user->loadMissing('meta', 'roles');
+        $user->loadMissing('meta', 'roles');
+
         return new UserCurrentResource( $user );
     }
 }

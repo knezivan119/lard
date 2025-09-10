@@ -40,35 +40,19 @@ return new class extends Migration
                 ->nullable()
             ;
 
-            $table->string('phone')
+            $table->jsonb('phones')
                 ->nullable()
             ;
 
-            $table->string('address')
+            $table->jsonb('addresses')
                 ->nullable()
             ;
 
-            $table->string('suburb')
+            $table->jsonb('notes')
                 ->nullable()
             ;
 
-            $table->string('postcode')
-                ->nullable()
-            ;
-
-            $table->string('state')
-                ->nullable()
-            ;
-
-            $table->string('country')
-                ->nullable()
-            ;
-
-            $table->text('notes')
-                ->nullable()
-            ;
-
-            $table->json('extra')
+            $table->jsonb('extra')
                 ->nullable()
                 ->comment('JSON')
             ;
