@@ -1,19 +1,19 @@
 <?php
 
-namespace {{ namespace }};
+namespace App\Console\Commands;
 
 use App\Traits\JsonTrait;
 use Illuminate\Console\Command;
 
-class {{ class }} extends Command
+class TestHey extends Command
 {
     use JsonTrait;
 
-    protected $signature = '{{ command }} {file} {test?}';
+    protected $signature = 'test:hey {file} {test?}';
     protected $description = 'Command description';
 
     protected $args;
-    protected $rows;
+    protected $rows = [];
 
 
     private function args()
