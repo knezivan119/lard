@@ -12,15 +12,15 @@ class TestHey extends Command
     protected $signature = 'test:hey {file} {test?}';
     protected $description = 'Command description';
 
-    protected $args;
-    protected $rows = [];
+    protected array $args;
+    protected array $rows = [];
 
 
     private function args(): void
     {
         $this->args = [
             'test' => $this->argument( 'test' ) ?? 'Hey!',
-            'file' => $this->argument( 'file' ) ?? null,
+            'file' => $this->argument( 'file' ),
         ];
     }
 

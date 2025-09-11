@@ -15,14 +15,14 @@ class AccountTest extends TestCase
 {
     use RefreshDatabase;
 
-    protected $account;
+    protected Account $account;
 
-    protected $name = 'Test Account';
-    protected $description = 'Lorem ipsum';
-    protected $comment = 'Comment';
-    protected $data = [];
-    protected $extra = [];
-    protected $status = AccountStatusEnum::Draft;
+    protected string $name = 'Test Account';
+    protected string $description = 'Lorem ipsum';
+    protected string $comment = 'Comment';
+    protected array $data = [];
+    protected array $extra = [];
+    protected AccountStatusEnum $status = AccountStatusEnum::Draft;
 
     protected function setUp(): void
     {
@@ -83,7 +83,7 @@ class AccountTest extends TestCase
     }
 
     #[DataProvider('statusProvider')]
-    public function test_AccountStatusEnum( $status, $expected ): void
+    public function test_AccountStatusEnum( AccountStatusEnum $status, bool $expected ): void
     {
         $this->assertSame( $expected, $status->isActive() );
     }

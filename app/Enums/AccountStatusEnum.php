@@ -10,7 +10,7 @@ enum AccountStatusEnum: string {
     case Cancelled = 'cancelled';
 
 
-    public function isActive( AccountStatusEnum $status = null ): bool
+    public function isActive( ?AccountStatusEnum $status = null ): bool
     {
         $status ??= $this;
 

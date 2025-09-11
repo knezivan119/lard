@@ -7,7 +7,7 @@ use JsonException;
 
 trait JsonTrait
 {
-    protected function readJsonFile( string $path, bool $assoc = false ): object|array
+    protected function readJsonFile( string $path, bool $assoc = false ): array
     {
         $json = $this->loadJsonBytes( $path );
 

@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Unit\Models;
+namespace Tests\Unit;
 
 use Tests\TestCase;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -38,13 +38,13 @@ class UserMetaTest extends TestCase
         ];
     }
 
-    public function test_createEmpty()
+    public function test_createEmpty(): void
     {
         $meta = UserMeta::create( [
             'user_id' => $this->user->id,
         ] );
 
-        $this->assertSame( $meta->user_id, $meta->user->id );
+        $this->assertSame( $meta->user_id, $meta->user?->getKey() );
         $this->assertNotNull( $meta->user_id );
         $this->assertNull( $meta->first_name );
         $this->assertNull( $meta->phones );
@@ -54,7 +54,7 @@ class UserMetaTest extends TestCase
     }
 
 
-    public function test_create()
+    public function test_create(): void
     {
         $payload = $this->payload();
 
@@ -72,7 +72,7 @@ class UserMetaTest extends TestCase
     }
 
 
-    public function test_massAssignmentAndUpdate()
+    public function test_massAssignmentAndUpdate(): void
     {
         $meta = UserMeta::create( $this->payload() );
 
@@ -84,9 +84,9 @@ class UserMetaTest extends TestCase
 
         $meta->refresh();
 
-        $this->assertSame( '+61280123456', $meta->phones[ 0 ][ 'e164' ] );
-        $this->assertSame( 'NSW', $meta->addresses[ 0 ][ 'state' ] );
-        $this->assertTrue( $meta->notes[ 'vip' ] );
-        $this->assertFalse( $meta->extra[ 'newsletter' ] );
+        $this->assertSame( '+61280123456', data_get( $meta, 'phones.0.e164' ) );
+        $this->assertSame( 'NSW', data_get( $meta, 'addresses.0.state' ) );
+        $this->assertTrue( data_get( $meta, 'notes.vip' ) );
+        $this->assertFalse( data_get( $meta, 'extra.newsletter' ) );
     }
 }

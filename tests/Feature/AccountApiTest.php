@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Feature\Http\Controllers;
+namespace Tests\Feature;
 
 use App\Enums\AccountStatusEnum;
 use App\Models\User;
@@ -45,7 +45,7 @@ class AccountApiTest extends TestCase
     }
 
 
-    public function test_guestIsUnauthorised()
+    public function test_guestIsUnauthorised(): void
     {
         // $this->markTestIncomplete( 'Not implemnted yet' );
         // $this->markTestSkipped( 'Not implemnted yet' );
@@ -64,7 +64,7 @@ class AccountApiTest extends TestCase
     }
 
 
-    public function test_list()
+    public function test_list(): void
     {
         // $this->markTestSkipped( 'Not ready yet' );
 
@@ -87,7 +87,7 @@ class AccountApiTest extends TestCase
     }
 
 
-    public function test_create()
+    public function test_create(): void
     {
         // $this->markTestSkipped( 'Not ready yet' );
 
@@ -102,10 +102,10 @@ class AccountApiTest extends TestCase
         $id = $response->json( 'id' );
         $account = Account::findOrFail( $id );
 
-        $this->assertSame( 'Demo', $account->name );
-        $this->assertSame( 'red', $account->extra[ 'style' ][ 'color' ] );
-        $this->assertTrue( $account->data[ 'flags' ][ 'published' ] );
-        $this->assertSame( 3, $account->data[ 'counts' ][ 'views' ] );
+        $this->assertSame( 'Demo', data_get( $account, 'name' ) );
+        $this->assertSame( 'red', data_get( $account, 'extra.style.color' ) );
+        $this->assertTrue( data_get( $account, 'data.flags.published' ) );
+        $this->assertSame( 3, data_get( $account, 'data.counts.views' ) );
 
         $this->assertDatabaseHas( 'accounts', [ 'id' => $id, 'name' => 'Demo' ] );
 
@@ -123,7 +123,7 @@ class AccountApiTest extends TestCase
     }
 
 
-    public function test_show()
+    public function test_show(): void
     {
         // $this->markTestSkipped( 'Not ready yet' );
 
@@ -137,7 +137,7 @@ class AccountApiTest extends TestCase
     }
 
 
-    public function test_updateOutdatedProtection()
+    public function test_updateOutdatedProtection(): void
     {
         // $this->markTestSkipped( 'Not ready yet' );
 
@@ -157,7 +157,7 @@ class AccountApiTest extends TestCase
     }
 
 
-    public function test_update()
+    public function test_update(): void
     {
         // $this->markTestSkipped( 'Not ready yet' );
 
@@ -177,13 +177,13 @@ class AccountApiTest extends TestCase
         ;
 
         $account->refresh();
-        $this->assertSame( 'blue', $account->extra[ 'style' ][ 'color' ] );
-        $this->assertFalse( $account->data[ 'flags' ][ 'published' ] );
-        $this->assertSame( 10, $account->data[ 'counts' ][ 'views' ] );
+        $this->assertSame( 'blue', data_get( $account, 'extra.style.color' ) );
+        $this->assertFalse( data_get( $account, 'data.flags.published' ) );
+        $this->assertSame( 10, data_get( $account, 'data.counts.views' ) );
     }
 
 
-    public function test_destroy()
+    public function test_destroy(): void
     {
         // $this->markTestSkipped( 'Not ready yet' );
 

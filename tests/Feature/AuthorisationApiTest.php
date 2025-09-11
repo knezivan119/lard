@@ -25,9 +25,10 @@ class AuthorisationApiTest extends TestCase
         // $this->markTestSkipped('Temporary skipped till figuring out Record update');
 
         $routes = Route::getRoutes();
+        // dd( $routes );
         $skip = [ 'GET', 'POST', 'PUT', 'PATCH', 'DELETE' ];
 
-        foreach ( $routes as $route ) {
+        foreach ( $routes->getRoutes() as $route ) {
             $only_api = preg_match( '/^api\//', $route->uri() );
             $has_methods = array_intersect( $skip, $route->methods() );
             $uses_sanctum = in_array( 'auth:sanctum', $route->middleware() );
@@ -50,9 +51,9 @@ class AuthorisationApiTest extends TestCase
     }
 
 
-    public function test_issueTokenValidatesRequiredFields( )
+    public function test_issueTokenValidatesRequiredFields(): void
     {
-        $response = $this->postJson( $this->issueTokenUrl, [ ] );
+        $response = $this->postJson( $this->issueTokenUrl, [] );
 
         $response->assertStatus( 422 )
             ->assertJsonValidationErrors( [ 'email', 'password', 'device_name' ] )
@@ -60,9 +61,9 @@ class AuthorisationApiTest extends TestCase
     }
 
 
-    public function test_issueTokenRejectsInvalidCredentials( )
+    public function test_issueTokenRejectsInvalidCredentials(): void
     {
-        $user = User::factory( )->create( [
+        $user = User::factory()->create( [
             'email'    => 'jane@example.com',
             'password' => Hash::make( 'correct-horse' ),
         ] );
@@ -80,9 +81,9 @@ class AuthorisationApiTest extends TestCase
     }
 
 
-    public function test_issueTokenReturnsTokenAndStoresPersonalAccessToken( )
+    public function test_issueTokenReturnsTokenAndStoresPersonalAccessToken(): void
     {
-        $user = User::factory( )->create( [
+        $user = User::factory()->create( [
             'email'    => 'jane@example.com',
             'password' => Hash::make( 'secret-123' ),
         ] );
@@ -94,7 +95,7 @@ class AuthorisationApiTest extends TestCase
         ];
 
         $response = $this->postJson( $this->issueTokenUrl, $payload )
-            ->assertOk( )
+            ->assertOk()
             ->assertJsonStructure( [ 'token' ] )
         ;
 
@@ -111,15 +112,15 @@ class AuthorisationApiTest extends TestCase
     }
 
 
-    public function test_currentRequiresAuthentication( )
+    public function test_currentRequiresAuthentication(): void
     {
         $this->getJson( $this->currentUrl )->assertStatus( 401 );
     }
 
 
-    public function test_currentReturnsAuthenticatedUserResource( )
+    public function test_currentReturnsAuthenticatedUserResource(): void
     {
-        $user = User::factory( )->create( [
+        $user = User::factory()->create( [
             'email'    => 'jane@example.com',
             'password' => Hash::make( 'secret-123' ),
         ] );
@@ -127,7 +128,7 @@ class AuthorisationApiTest extends TestCase
         Sanctum::actingAs( $user );
 
         $this->getJson( $this->currentUrl )
-            ->assertOk( )
+            ->assertOk()
             ->assertJsonFragment( [
                 'id'    => $user->id,
                 'email' => 'jane@example.com',

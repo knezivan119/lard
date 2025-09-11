@@ -16,10 +16,10 @@ class UserApiTest extends TestCase
     use RefreshDatabase;
     use InteractsWithDatabase;
 
-    public $baseUrl = '/api/v1/users';
+    public string $baseUrl = '/api/v1/users';
 
     // protected $user;
-    protected $table = 'users';
+    protected string $table = 'users';
     // protected $user_id;
 
     protected function setUp(): void

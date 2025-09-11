@@ -14,7 +14,7 @@ use App\Http\Resources\UserCurrentResource;
 
 class UserController extends Controller
 {
-    public function index( Request $request )
+    public function index( Request $request ): mixed
     {
         $perPage = $request->pagination['rowsPerPage'] ?? 10;
         $page = $request->pagination['page'] ?? 1;
@@ -30,7 +30,7 @@ class UserController extends Controller
     }
 
 
-    public function show( User $user )
+    public function show( User $user ): mixed
     {
         $user->loadMissing('meta', 'roles');
         return new UserResource( $user );
@@ -44,7 +44,7 @@ class UserController extends Controller
     // }
 
 
-    public function store( UserRequest $request )
+    public function store( UserRequest $request ): mixed
     {
         $user = DB::transaction( function() use ( $request ) {
             return ( new User )->store( $request->validated() );
@@ -55,7 +55,7 @@ class UserController extends Controller
     }
 
 
-    public function update( User $user, UserRequest $request )
+    public function update( User $user, UserRequest $request ): mixed
     {
         DB::transaction( function() use ( $request, $user ) {
             $user->update( $request->all() );
@@ -72,7 +72,7 @@ class UserController extends Controller
     }
 
 
-    public function destroy( User $user )
+    public function destroy( User $user ): mixed
     {
         $user->delete();
 

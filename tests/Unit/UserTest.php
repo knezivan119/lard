@@ -12,11 +12,11 @@ class UserTest extends TestCase
 {
     use RefreshDatabase;
 
-    protected $user;
+    protected User $user;
 
-    protected $name = 'Yosemite Sam';
-    protected $email = 'jo@example.com';
-    protected $password = 'password';
+    protected string $name = 'Yosemite Sam';
+    protected string $email = 'jo@example.com';
+    protected string $password = 'password';
 
     protected function setUp(): void
     {

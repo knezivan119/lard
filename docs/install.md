@@ -370,3 +370,43 @@ It will create `stubs/` dir in root of project with files.
 
 `sail artisan stub:publish`
 
+### PhpStan
+
+sail composer require --dev larastan/larastan
+sail composer require --dev phpstan/phpstan-phpunit
+
+```yaml
+# ./phpstan.neon.dist
+includes:
+  - vendor/larastan/larastan/extension.neon
+  - vendor/phpstan/phpstan-phpunit/extension.neon
+  - vendor/phpstan/phpstan-phpunit/rules.neon
+
+parameters:
+  level: 7
+  paths:
+    - app
+    - tests
+
+  checkMissingTypehints: false
+  treatPhpDocTypesAsCertain: false
+  reportUnmatchedIgnoredErrors: true
+
+  ignoreErrors:
+    - identifier: missingType.generics
+    - identifier: missingType.iterableValue
+    - identifier: assign.propertyType
+    - identifier: property.notFound
+      paths:
+        - app/Http/Resources/*
+
+    - message: '#should return array<string,\s*mixed> but returns array\|Illuminate\\Contracts\\Support\\Arrayable\|JsonSerializable#'
+      paths:
+        - app/Http/Resources/*
+```
+
+```bash
+sail php -d memory_limit=1G vendor/bin/phpstan analyse
+sail php vendor/bin/phpstan clear-result-cache
+```
+

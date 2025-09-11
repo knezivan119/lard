@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Hash;
 use App\Models\User;
 
@@ -10,7 +11,7 @@ use App\Http\Resources\UserCurrentResource;
 
 class AuthController extends Controller
 {
-    public function issueToken( Request $request )
+    public function issueToken( Request $request ): JsonResponse
     {
         $creds = $request->validate( [
             'email' => [ 'required', 'email' ],
@@ -26,11 +27,11 @@ class AuthController extends Controller
 
         $token = $user->createToken( $creds[ 'device_name' ] )->plainTextToken;
 
-        return [ 'token' => $token ];
+        return response()->json([ 'token' => $token ]);
     }
 
 
-    public function current( Request $request )
+    public function current( Request $request ): UserCurrentResource
     {
         $user = $request->user();
         $user->loadMissing('meta', 'roles');

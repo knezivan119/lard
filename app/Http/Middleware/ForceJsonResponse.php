@@ -7,7 +7,7 @@ use Illuminate\Http\Request;
 
 class ForceJsonResponse
 {
-    public function handle( Request $request, Closure $next )
+    public function handle( Request $request, Closure $next ): mixed
     {
         // Make Laravel treat every API request as expecting JSON
         $request->headers->set( 'Accept', 'application/json' );

@@ -10,11 +10,12 @@ use App\Http\Resources\AccountResource;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection as ARC;
 // use App\Http\Resources\AccountCurrentResource;
 
 class AccountController extends Controller
 {
-    public function index( Request $request )
+    public function index( Request $request ): ARC
     {
         $perPage = $request->pagination['rowsPerPage'] ?? 10;
         $page = $request->pagination['page'] ?? 1;
@@ -30,13 +31,13 @@ class AccountController extends Controller
     }
 
 
-    public function show( Account $account )
+    public function show( Account $account ): AccountResource
     {
         $account->loadMissing('users');
         return new AccountResource( $account );
     }
 
-    public function current( Request $request )
+    public function current( Request $request ): AccountResource
     {
         $user = $request->user();
         $account = $user->accounts()->first();
@@ -45,7 +46,7 @@ class AccountController extends Controller
     }
 
 
-    public function store( AccountRequest $request )
+    public function store( AccountRequest $request ): AccountResource
     {
         $account = DB::transaction( function() use ( $request ) {
             // return ( new Account )->store( $request->all() );
@@ -57,7 +58,7 @@ class AccountController extends Controller
     }
 
 
-    public function storeLogo( Account $account, Request $request )
+    public function storeLogo( Account $account, Request $request ): AccountResource
     {
         $request->validate([
             'logo' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
@@ -74,21 +75,24 @@ class AccountController extends Controller
         $mimeType = $file->getMimeType();
         $ext = match( $mimeType ) {
             'image/png' => '.png',
-            'image/jpg',
-            'image/jpeg' => '.jpg',
             'image/gif' => '.gif',
-            // 'image/svg' => '.svg',
+            // 'image/jpg',
+            // 'image/jpeg' => '.jpg',
+            default => '.jpg',
         };
 
         if ( Storage::disk( $disk )->exists( $path.$ext ) ) {
             Storage::disk( $disk )->delete( $path.$ext );
         }
+
+        $data = [];
+
         $logo = $request->logo->storeAs( $storage, $filename.$ext, $disk );
 
-        $data = $account->data;
+        $data = (array) $account->data;
         $data['logo'] = $logo;
-        $account->data = $data;
 
+        $account->data = $data;
         $account->save();
 
         $account->loadMissing('users');
@@ -96,7 +100,7 @@ class AccountController extends Controller
     }
 
 
-    public function update( Account $account, AccountRequest $request )
+    public function update( Account $account, AccountRequest $request ): mixed
     {
         DB::transaction( function() use ( $request, $account ) {
             $account->update( $request->validated() );
@@ -113,7 +117,7 @@ class AccountController extends Controller
     }
 
 
-    public function destroy( Account $account )
+    public function destroy( Account $account ): mixed
     {
         $account->delete();
 

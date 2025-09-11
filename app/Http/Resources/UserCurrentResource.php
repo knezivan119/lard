@@ -19,8 +19,8 @@ class UserCurrentResource extends JsonResource
             'id' => $this->id,
             'name' => $this->name,
             'email' => $this->email,
-            'first_name' => $meta?->first_name ?? null,
-            'last_name' => $meta?->last_name ?? null,
+            'first_name' => $meta->first_name ?? null,
+            'last_name' => $meta->last_name ?? null,
             // 'discount' => +$meta?->extra['discount'],
             'roles' => $roles?->pluck( 'name' ) ?? null,
         ];
