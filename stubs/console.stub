@@ -16,7 +16,7 @@ class {{ class }} extends Command
     protected $rows;
 
 
-    private function args()
+    private function args(): void
     {
         $this->args = [
             'test' => $this->argument( 'test' ) ?? 'Hey!',
@@ -25,7 +25,7 @@ class {{ class }} extends Command
     }
 
 
-    public function handle()
+    public function handle(): int
     {
         $this->args();
 
@@ -35,10 +35,11 @@ class {{ class }} extends Command
         $this->process();
 
         $this->info( 'Command completed.' );
+        return self::SUCCESS;
     }
 
 
-    protected function process()
+    protected function process(): void
     {
         $this->info( $this->args[ 'test' ] );
 
