@@ -107,8 +107,8 @@ class Account extends Model
     # METHODS ================================================================
     public function logoName(): String
     {
-        $name = ( 100200 + $this->id ) * 3;
-        return bin2hex( $name );
+        $name = ( 100207 + $this->id ) * 3;
+        return dechex( $name );
     }
 
 }

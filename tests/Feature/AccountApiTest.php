@@ -203,7 +203,7 @@ class AccountApiTest extends TestCase
     {
         $this->signIn();
 
-        $formats = [ '.png', '.jpg', '.gif' ];
+        $formats = [ '.png', '.png', '.jpg', '.gif' ];
 
         $account = Account::factory()->create();
 

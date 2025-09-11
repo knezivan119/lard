@@ -68,9 +68,7 @@ class AccountController extends Controller
         $filename = $account->logoName();
         $path = $storage . '/' . $filename;
 
-        if ( Storage::disk( $disk )->exists( $path ) ) {
-            Storage::disk( $disk )->delete( $path );
-        }
+        // dd( $path );
 
         $file = $request->file('logo');
         $mimeType = $file->getMimeType();
@@ -82,6 +80,9 @@ class AccountController extends Controller
             // 'image/svg' => '.svg',
         };
 
+        if ( Storage::disk( $disk )->exists( $path.$ext ) ) {
+            Storage::disk( $disk )->delete( $path.$ext );
+        }
         $logo = $request->logo->storeAs( $storage, $filename.$ext, $disk );
 
         $data = $account->data;
