@@ -1,0 +1,77 @@
+<?php
+
+namespace {{ namespace }};
+
+use Illuminate\Console\Command;
+
+class {{ class }} extends Command
+{
+    protected $signature = '{{ command {file} {test?} }}';
+    protected $description = 'Command description';
+
+    protected $args;
+    protected $user;
+    protected $state;
+    protected $rows;
+
+
+    private function args()
+    {
+        $this->args = [
+            'test' => $this->argument( 'test' ) ?? 'Hey!',
+            'file' => $this->argument( 'file' ) ?? null,
+        ];
+    }
+
+
+    public function handle()
+    {
+        $this->args();
+        $this->check()       || die("Check failed\n");
+        $this->readFile()    || die("Reading file failed\n");
+
+        $this->process();
+
+        $this->info( 'Command completed.' );
+    }
+
+
+    protected function process()
+    {
+        $this->info( $this->args['test'] );
+
+        dump( $this->rows );
+
+        // foreach ( $this->rows as $row ) {
+
+        // }
+    }
+
+
+
+    private function readFile(): bool
+    {
+        $jsonData = file_get_contents( $this->args['file'] );
+        $this->rows = json_decode( $jsonData, false );
+
+        $err = json_last_error();
+        if ( $err === JSON_ERROR_NONE ) {
+            return true;
+        }
+
+        $this->error( "Invalid JSON file (Err: {$err})" );
+        return false;
+    }
+
+
+    private function check(): bool
+    {
+        if ( !file_exists( $this->args['file'] ) ) {
+            $this->error( 'File not found!' );
+            return false;
+        }
+        return true;
+    }
+
+
+}

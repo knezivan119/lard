@@ -359,3 +359,14 @@ sail test
 ```
 
 Have a look if there is `testing.md` file for more.
+
+
+
+## Useful
+
+### Stubs
+Great for exposing templates for making different things like models, controllers, enums...
+It will create `stubs/` dir in root of project with files.
+
+`sail artisan stub:publish`
+
