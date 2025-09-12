@@ -23,20 +23,20 @@ trait ServedAtTrait
     {
         static $check = null;
 
-        if ( !request()->served_at || !$this->updated_at ) {
+        if ( empty( request()->served_at ) || empty( $this->updated_at ) ) {
             return true;
         }
 
-        // if ( $check !== null ) {
-        //     return $check;
-        // }
+        if ( $check !== null ) {
+            return $check;
+        }
 
         $check = $this->updated_at->lessThanOrEqualTo( Carbon::parse( request()->served_at ) );
         if ( !$check ) {
             throw new \Exception( 'Conflict - Outdated data ', 409 );
         }
 
-        return $check;
+        return true;
     }
 
 

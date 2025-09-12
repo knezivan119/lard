@@ -51,15 +51,18 @@ trait ModelFilterTrait
                     continue;
                 }
 
-                $type = '';
+                // $type = '';
+                $field = '';
+                $compare = '=';
+                $pattern = '?';
                 extract( $field_data );
 
-                if ( $type == 'bool' ) {
-                    $value = in_array( $search[ $key ], ['false', '0', 'no'] ) ? 0 : 1;
-                }
-                else {
+                // if ( $type == 'bool' ) {
+                //     $value = in_array( $search[ $key ], ['false', '0', 'no'] ) ? 0 : 1;
+                // }
+                // else {
                     $value = $search[ $key ];
-                }
+                // }
 
                 if ( preg_match( '/^date\_/', $key ) ) {
                     try {

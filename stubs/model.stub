@@ -2,10 +2,141 @@
 
 namespace {{ namespace }};
 
+use App\Enums\{{ class }}StatusEnum;
+use App\Traits\ModelFilterTrait;
+use App\Traits\ServedAtTrait;
+// use App\Models\Scopes\AccountScope;
+
+use Illuminate\Database\Eloquent\Builder;
+// use Illuminate\Database\Eloquent\Casts\Attribute;
+use Illuminate\Database\Eloquent\Relations;
+// use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+
 {{ factoryImport }}
+// use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class {{ class }} extends Model
 {
     {{ factory }}
+    // use HasFactory;
+    use ServedAtTrait;
+    use ModelFilterTrait;
+    // use SoftDeletes;
+
+    protected $fillable = [
+        // 'account_id',
+        'name',
+        'desc',
+        'status',
+        'extra',
+    ];
+
+    protected $appends = [
+        'served_at',
+    ];
+
+    protected $hidden = [
+        // 'deleted_at',
+        'created_at',
+        'updated_at',
+    ];
+
+    # CASTS ==================================================================
+    protected function casts(): array
+    {
+        return [
+            'status' => {{ class }}StatusEnum::class,
+            'extra' => 'array',
+        ];
+    }
+
+    # SEARCH =================================================================
+    protected $fieldsToSearch = [
+        'id' => [
+            'field' => 'id',
+            'compare' => '=',
+            'pattern' => '?',
+        ],
+        'status' => [
+            'field' => 'status',
+            'compare' => '=',
+            'pattern' => '?',
+        ],
+        'name' => [
+            'field' => 'name',
+            'compare' => 'LIKE',
+            'pattern' => '%?%',
+        ],
+        'desc' => [
+            'field' => 'desc',
+            'compare' => 'LIKE',
+            'pattern' => '%?%',
+        ],
+    ];
+
+    # BOOT ===================================================================
+    protected static function boot() : void
+    {
+        parent::boot();
+
+        // static::creating( function ( $query ) {
+        //     $query->account_id = $query->account_id ?? Auth::user()->account()->id;
+        // });
+
+        static::updating( function ( $query ) {
+            $query->checkServedAt();
+        });
+
+        // static::saving( function ( $query ) {
+            // $query->manageStatus();
+        // });
+    }
+
+    // protected static function booted(): void
+    // {
+    //     static::addGlobalScope( new AccountScope );
+    // }
+
+
+    # RELATIONS =============================================================
+
+    // public function account(): BelongsTo
+    // {
+    //     return $this->belongsTo( Account::class );
+    // }
+
+    // public function comments(): Relations\HasMany
+    // {
+    //     return $this->hasMany( Comment::class );
+    // }
+
+
+    # SCOPES =================================================================
+
+    public function scopeFilter( Builder $query, Request $request ): Builder
+    {
+        $this->filterSearch( $query, $request );
+        $this->filterSort( $query, $request );
+
+        return $query;
+    }
+
+
+    # ATTRIBUTES =============================================================
+    // public function jobsCount(): Attribute
+    // {
+    //     return Attribute::make(
+    //         get: fn () => [
+    //             'total' => $this->jobs()->count(),
+    //             'active' => $this->jobs()->where('status', JobStatusEnum::Active )->count(),
+    //         ]
+    //     );
+    // }
+
+
+    # METHODS ================================================================
 }
+
