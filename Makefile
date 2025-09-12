@@ -19,7 +19,7 @@ else
   NPM=npm
 endif
 
-.PHONY: dev-update dev-reset dev-major-laravel dev-major-node dev-sanity hello
+.PHONY: dev-update dev-reset dev-major-laravel dev-major-node dev-sanity hello stan test
 
 hello:
 	@echo "No default action."
@@ -28,6 +28,8 @@ hello:
 	@echo "  make dev-reset         # migrate:fresh --seed and clear caches"
 	@echo "  make dev-major-laravel # try next Laravel major (DEV only)"
 	@echo "  make dev-major-node    # try latest JS majors (DEV only)"
+	@echo "  make test              # test everything with coverage"
+	@echo "  make stan              # analyse with PHPStan"
 
 dev-update:
 	$(COMPOSER) update --with-all-dependencies
@@ -59,3 +61,8 @@ dev-sanity:
 	-$(ARTISAN) about
 	-$(ARTISAN) test
 
+stan:
+	-$(PHP) -d memory_limit=1G vendor/bin/phpstan analyse
+
+test:
+	-$(ARTISAN) test --coverage
