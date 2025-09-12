@@ -24,7 +24,7 @@ parameters:
     - message: '#should return array<string,\s*mixed> but returns array\|Illuminate\\Contracts\\Support\\Arrayable\|JsonSerializable#'
       paths:
         - app/Http/Resources/*
-#    - message: '#Property .*::\$data .* does not accept array#'
-#      paths:
-#        - app/Http/Controllers/AccountController.php
+    - message: '#Cannot call method expectsOutput.*#'
+      paths:
+        - tests/Feature/*
 

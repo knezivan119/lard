@@ -10,7 +10,7 @@ trait JsonTrait
     protected function readJsonFile( string $path, bool $assoc = false ): array
     {
         $json = $this->loadJsonBytes( $path );
-
+        dump( [ 'exists' => File::exists( $path), 'path' => $path, 'f' => __METHOD__ ] );
         try {
             return json_decode( $json, $assoc, 512, JSON_THROW_ON_ERROR );
         }
@@ -33,11 +33,14 @@ trait JsonTrait
         // }
 
         $full = $this->resolvePath( $path );
+        dump( File::exists( $full), $full );
 
         if ( !File::exists( $full ) ) {
+            dump('nema');
             $this->error( 'File not found!' );
             throw new \RuntimeException( 'File not found: ' . $path );
         }
+        dump( 'tu sam' );
 
         return File::get( $full );
     }

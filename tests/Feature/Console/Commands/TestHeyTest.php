@@ -3,7 +3,6 @@
 namespace Tests\Feature\Console\Commands;
 
 use Illuminate\Console\Command;
-use Illuminate\Testing\PendingCommand;
 
 use Tests\TestCase;
 
@@ -14,9 +13,8 @@ class TestHeyTest extends TestCase
         $path = tempnam( sys_get_temp_dir(), 'hey_' );
         file_put_contents( $path, json_encode( [ [ 'id' => 1 ], [ 'id' => 2 ] ] ) );
 
-        $pc = $this->artisan( 'test:hey ' . $path . ' Hello' );
-        $this->assertInstanceOf( PendingCommand::class, $pc );
-        $pc->expectsOutput( 'Hello' )
+        $this->artisan( 'test:hey ' . $path . ' Hello' )
+            ->expectsOutput( 'Hello' )
             ->expectsOutput( 'Command completed.' )
             ->assertExitCode( Command::SUCCESS )
         ;
@@ -30,9 +28,8 @@ class TestHeyTest extends TestCase
         $path = tempnam( sys_get_temp_dir(), 'hey_' );
         file_put_contents( $path, "[ [ 'id' => 1 ], [ 'id' => 2 ], ]," );
 
-        $pc = $this->artisan( 'test:hey ' . $path . ' Hello' );
-        $this->assertInstanceOf( PendingCommand::class, $pc );
-        $pc->expectsOutput( 'Invalid JSON file' )
+        $this->artisan( 'test:hey ' . $path . ' Hello' )
+            ->expectsOutput( 'Invalid JSON file' )
             ->assertExitCode( Command::FAILURE )
         ;
 
@@ -44,9 +41,8 @@ class TestHeyTest extends TestCase
     {
         $missing = sys_get_temp_dir() . '/does-not-exist-' . uniqid( '' ) . '.json';
 
-        $pc = $this->artisan( 'test:hey ' . $missing );
-        $this->assertInstanceOf( PendingCommand::class, $pc );
-        $pc->expectsOutput( 'File not found!' )
+        $this->artisan( 'test:hey ' . $missing )
+            ->expectsOutput( 'File not found!' )
             ->assertExitCode( Command::FAILURE )
         ;
     }

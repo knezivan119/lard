@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\Traits\JsonTrait;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\File;
 
 class TestHey extends Command
 {
@@ -52,7 +53,7 @@ class TestHey extends Command
     private function readFile(): bool
     {
         try {
-            $this->rows = $this->readJsonFile( $this->args['file'] );
+            $this->rows = $this->readJsonFile( $this->args['file'], false );
         }
         catch( \Throwable $e ) {
             $this->error( "Invalid JSON file" );

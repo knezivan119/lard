@@ -73,10 +73,4 @@ abstract class TestCase extends BaseTestCase
         // here just for phpstan to be happy :)
     }
 
-
-    // public function artisan( $command, $parameters = [] ): PendingCommand|int
-    // {
-    //     return parent::artisan( $command, $parameters );
-    // }
-
 }
