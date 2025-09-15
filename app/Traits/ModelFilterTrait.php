@@ -15,9 +15,11 @@ trait ModelFilterTrait
     /**
      *
      */
-    public function decodeSearch( Request $request ) : array
+    // public function decodeSearch( Request $request ) : array
+    public function decodeSearch( array $request ) : array
     {
-        $req = $request->all();
+        // $req = $request->all();
+        $req = $request;
 
         $search = empty( $req['search'] )
             ? []
@@ -36,7 +38,7 @@ trait ModelFilterTrait
      * Search through various fields set in $fieldsToSearch from request()->search
      *
      */
-    public function filterSearch( Builder $query, Request $request ) : Builder
+    public function filterSearch( Builder $query, array $request ) : Builder
     {
         if ( !$this->fieldsToSearch ) {
             return $query;
@@ -51,12 +53,11 @@ trait ModelFilterTrait
                     continue;
                 }
 
-                // $type = '';
-                $field = '';
-                $compare = '=';
-                $pattern = '?';
-                extract( $field_data );
+                $field = data_get( $field_data, 'field', '' );
+                $compare = data_get( $field_data, 'compare', '=' );
+                $pattern = data_get( $field_data, 'pattern', '?' );
 
+                // $type = '';
                 // if ( $type == 'bool' ) {
                 //     $value = in_array( $search[ $key ], ['false', '0', 'no'] ) ? 0 : 1;
                 // }
@@ -100,9 +101,11 @@ trait ModelFilterTrait
     }
 
 
-    public function filterSort( Builder $query, Request $request ) : Builder
+    // public function filterSort( Builder $query, Request $request ) : Builder
+    public function filterSort( Builder $query, array $request ) : Builder
     {
-        $req = $request->pagination ?? $request->all();
+        // $req = $request->pagination ?? $request->all();
+        $req = $request['pagination'] ?? $request;
 
         $defaults = [
             'sortBy' => 'id',

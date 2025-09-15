@@ -1,16 +1,150 @@
 <?php
+/**
+ * Make sure you rename Example to your model name
+ * and do all the other tests for your use :)
+ */
 
 namespace {{ namespace }};
 
-use PHPUnit\Framework\TestCase;
+use App\Enums\ExampleStatusEnum;
+use App\Models\Example;
+
+// ACC!
+use App\Models\Account;
+use App\Models\User;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Auth;
+use PHPUnit\Framework\Attributes\DataProvider;
+use Tests\TestCase;
 
 class {{ class }} extends TestCase
 {
-    /**
-     * A basic unit test example.
-     */
-    public function test_example(): void
+    use RefreshDatabase;
+
+    protected function setUp(): void
     {
-        $this->assertTrue(true);
+        parent::setUp();
+
+        // ACC! Or: create a fresh user+account and log in (works without seeder)
+        $user = User::factory()->create();
+        $account = Account::factory()->create();
+        $user->accounts()->attach( $account->id );
+        Auth::login( $user );
     }
+
+    public function test_crud_smoke( ): void
+    {
+        # CREATE
+        // ACC! ensure we pass an account_id the user belongs to
+        $accountId = Auth::user()->accounts()->value( 'accounts.id' );
+        $model = Example::query()->create( [
+            'account_id' => $accountId, // ACC!
+            'name' => 'Alpha',
+            'desc' => 'First',
+            'status' => ExampleStatusEnum::Active,
+            'extra' => [ 'k' => 'v' ],
+        ] );
+        $this->assertSame( $model->account_id, data_get( $model, 'account.id', null ) );
+
+        $this->assertNotNull( $model->id );
+        $this->assertDatabaseHas( $model->getTable(), [
+            'id' => $model->id,
+            'name' => 'Alpha',
+        ] );
+        // end ACC!
+
+        # Cast sanity
+        $fresh = $model->fresh();
+        $this->assertTrue( $fresh->status === ExampleStatusEnum::Active );
+        $this->assertIsArray( $fresh->extra ?? [] );
+
+        # Appended attribute is present in array form
+        $this->assertArrayHasKey( 'served_at', $fresh->toArray() );
+
+        # READ
+        $found = Example::query()->find( $model->id );
+        $this->assertNotNull( $found );
+
+        # UPDATE
+        $found->update( [
+            'name' => 'Beta',
+            'extra' => [ 'k' => 'v2' ],
+        ] );
+        $this->assertSame( 'Beta', $found->fresh()->name );
+
+        # DELETE
+        $id = $found->id;
+        $found->delete();
+        $this->assertDatabaseMissing( $model->getTable(), [ 'id' => $id ] );
+    }
+
+
+    #[DataProvider('statusProvider')]
+    public function test_StatusEnum( ExampleStatusEnum $status, bool $expected ): void
+    {
+        $this->assertSame( $expected, $status->isActive() );
+    }
+
+    public static function statusProvider(): array
+    {
+        return [
+            'Draft' => [ ExampleStatusEnum::Draft, true ],
+            'Active' => [ ExampleStatusEnum::Active, true ],
+            'Disabled' => [ ExampleStatusEnum::Disabled, false ],
+            'Deleted' => [ ExampleStatusEnum::Deleted, false ],
+        ];
+    }
+
+
+    // ACC! account scope with user↔accounts m2m
+    public function test_global_scope_limits_to_users_accounts( ): void
+    {
+        // Arrange: log in a user with one account
+        $user = Auth::user() ?? tap( User::factory()->create(), function ( User $u ) {
+            $acc = Account::factory()->create();
+            $u->accounts()->attach( $acc->id );
+            Auth::login( $u );
+        } );
+
+        $accountId = $user->accounts()->value( 'accounts.id' );
+
+        // Visible record: belongs to my account
+        $mine = Example::query()->create( [
+            'account_id' => $accountId,
+            'name' => 'Mine',
+            'status' => ExampleStatusEnum::Active,
+        ] );
+
+        // Hidden record: belongs to someone else
+        $otherAccount = Account::factory()->create();
+        Example::withoutEvents( function ( ) use ( $otherAccount ) {
+            Example::query()->withoutGlobalScopes()->create( [
+                'account_id' => $otherAccount->id,
+                'name' => 'Other',
+                'status' => ExampleStatusEnum::Active,
+            ] );
+        } );
+
+        // Assert: scope hides the foreign record
+        $visibleNames = Example::query()->pluck( 'name' )->all();
+        $this->assertSame( [ 'Mine' ], $visibleNames );
+    }
+
+
+    public function test_scope_filter_like_search( ): void
+    {
+        Example::factory()->create( [ 'name' => 'Alpha', 'status' => 'draft' ] );
+        Example::factory()->create( [ 'name' => 'Beta', 'status' => 'active' ] );
+
+        $q = Example::query();
+        $m = new Example();
+        $m->scopeFilter( $q, [ 'search' => [ 'status' => 'active' ] ] );
+        // $m->scopeFilter( $q, [ 'search' => json_encode( [ 'status' => 'active' ] ) ] );
+
+        $names = $q->pluck( 'name' )->all();
+        $this->assertSame( [ 'Beta' ], $names );
+    }
+    // end ACC!
 }
+
+

@@ -68,6 +68,20 @@ abstract class TestCase extends BaseTestCase
     }
 
 
+    // protected function signInToAccount( ?Account $account = null, string $role = 'admin' ): User
+    // {
+    //     $account ??= Account::factory()->create();
+
+    //     $user = User::factory()->create();
+    //     $user->assignRole( $role );
+    //     $user->accounts()->attach( $account->id );
+
+    //     Auth::login( $user );
+
+    //     return $user;
+    // }
+
+
     public function error( mixed $stuff ): void
     {
         // here just for phpstan to be happy :)

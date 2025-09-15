@@ -2,22 +2,53 @@
 
 namespace {{ factoryNamespace }};
 
+use App\Enums\ExampleStatusEnum;
+use App\Models\Example;
+// use App\Models\Account; // ACC!
+
 use Illuminate\Database\Eloquent\Factories\Factory;
 
-/**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\{{ namespacedModel }}>
- */
 class {{ factory }}Factory extends Factory
 {
-    /**
-     * Define the model's default state.
-     *
-     * @return array<string, mixed>
-     */
+    protected $model = Example::class;
+
     public function definition(): array
     {
         return [
-            //
+            // 'account_id' => Account::factory(), // ACC! enable if you want implicit accounts
+            'name' => $this->faker->unique()->words( 2, true ),
+            'desc' => $this->faker->optional()->realText( 160 ),
+            'status' => ExampleStatusEnum::Active,
+            'extra' => [],
         ];
+    }
+
+
+    public function draft(): static
+    {
+        return $this->state( fn() => [ 'status' => ExampleStatusEnum::Draft ] );
+    }
+
+    public function active(): static
+    {
+        return $this->state( fn() => [ 'status' => ExampleStatusEnum::Active ] );
+    }
+
+    public function disabled(): static
+    {
+        return $this->state( fn() => [ 'status' => ExampleStatusEnum::Disabled ] );
+    }
+
+    public function deleted(): static
+    {
+        return $this->state( fn() => [ 'status' => ExampleStatusEnum::Deleted ] );
+    }
+
+
+    // ACC! Explicit account binder pays for itself in scoped tests
+    public function forAccount( Account|int $account ): static
+    {
+        $id = is_object( $account ) ? $account->getKey() : $account;
+        return $this->state( fn() => [ 'account_id' => $id ] );
     }
 }
