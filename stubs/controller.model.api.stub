@@ -3,48 +3,55 @@
 namespace {{ namespace }};
 
 use {{ namespacedModel }};
+use {{ rootNamespace }}Enums\{{ model }}StatusEnum;
 use {{ rootNamespace }}Http\Controllers\Controller;
+use {{ rootNamespace }}Http\Resources\{{ model }}Resource;
 use {{ namespacedRequests }}
 
 class {{ class }} extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    public function index( Request $request )
     {
-        //
+        $rowsPerPage = $request->input('rowsPerPage') ?? 7;
+
+        ${{ modelVariable }}s = {{ model }}::filter( $request )
+            ->paginate( $rowsPerPage )
+        ;
+
+        return {{ model }}Resource::collection( ${{ modelVariable }}s );
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store({{ storeRequest }} $request)
+    public function all( Request $request )
     {
-        //
+        ${{ modelVariable }}s = {{ model }}::select( 'id', 'code', 'name' )
+            ->where( 'status', {{ model }}StatusEnum::Active )
+            ->get()
+        ;
+
+        return {{ model }}Resource::collection( ${{ modelVariable }}s );
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show({{ model }} ${{ modelVariable }})
+    public function show( {{ model }} ${{ modelVariable }} )
     {
-        //
+        return new {{ model }}Resource( ${{ modelVariable }} );
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update({{ updateRequest }} $request, {{ model }} ${{ modelVariable }})
+
+    public function store( {{ storeRequest }} $request )
     {
-        //
+        ${{ modelVariable }} = {{ model }}::create( $request->all() );
+        return new {{ model }}Resource( $state );
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy({{ model }} ${{ modelVariable }})
+    public function update( {{ updateRequest }} $request, {{ model }} ${{ modelVariable }} )
     {
-        //
+        ${{ modelVariable }}->update( $request->all() );
+        return new {{ model}}Resource( $state );
+    }
+
+    public function destroy( {{ model }} ${{ modelVariable }} )
+    {
+        ${{ modelVariable }}->delete();
+        return response()->noContent();
     }
 }
