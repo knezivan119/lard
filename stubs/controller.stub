@@ -1,8 +1,8 @@
 <?php
 /**
- * If you're after standard controller :)
+ * If you're after standardised controller :)
  * Try this:
- * sail artisan make:controller TandaraController --api -m Tandara --force
+ * sail artisan make:controller ExampleController --api -m Example --force
  */
 
 namespace {{ namespace }};

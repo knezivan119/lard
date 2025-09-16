@@ -46,7 +46,7 @@ class {{ class }} extends Controller
     public function update( {{ updateRequest }} $request, {{ model }} ${{ modelVariable }} )
     {
         ${{ modelVariable }}->update( $request->all() );
-        return new {{ model}}Resource( $state );
+        return new {{ model }}Resource( $state );
     }
 
     public function destroy( {{ model }} ${{ modelVariable }} )
