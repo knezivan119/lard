@@ -111,11 +111,11 @@ class UserApiTest extends TestCase
         $request = [
             'name' => 'Tandara Mandara F',
             'email' => 'test2@example.com',
-            'served_at' => Carbon::now()->subMinutes(10),
+            'served_at' => Carbon::now()->subMinutes( 10 ),
         ];
 
         $response = $this->putJson( $this->url( $record->id ), $request );
-        $response->assertStatus( 500 );
+        $response->assertStatus( 409 );
     }
 
 

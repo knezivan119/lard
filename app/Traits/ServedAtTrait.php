@@ -3,6 +3,7 @@
 namespace App\Traits;
 
 use Illuminate\Support\Carbon;
+use App\Exceptions\ConflictException;
 
 trait ServedAtTrait
 {
@@ -33,7 +34,7 @@ trait ServedAtTrait
 
         $check = $this->updated_at->lessThanOrEqualTo( Carbon::parse( request()->served_at ) );
         if ( !$check ) {
-            throw new \Exception( 'Conflict - Outdated data ', 409 );
+            throw new ConflictException( 'Conflict - Outdated data ' );
         }
 
         return true;

@@ -7,21 +7,26 @@ use {{ rootNamespace }}Enums\{{ model }}StatusEnum;
 use {{ rootNamespace }}Http\Controllers\Controller;
 use {{ rootNamespace }}Http\Resources\{{ model }}Resource;
 use {{ namespacedRequests }}
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Response;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
 class {{ class }} extends Controller
 {
-    public function index( Request $request )
+    public function index( Request $request ): AnonymousResourceCollection
     {
         $rowsPerPage = $request->input('rowsPerPage') ?? 7;
 
-        ${{ modelVariable }}s = {{ model }}::filter( $request )
+        ${{ modelVariable }}s = {{ model }}::filter( $request->all() )
             ->paginate( $rowsPerPage )
         ;
 
         return {{ model }}Resource::collection( ${{ modelVariable }}s );
     }
 
-    public function all( Request $request )
+    public function all( Request $request ): AnonymousResourceCollection
     {
         ${{ modelVariable }}s = {{ model }}::select( 'id', 'code', 'name' )
             ->where( 'status', {{ model }}StatusEnum::Active )
@@ -31,25 +36,27 @@ class {{ class }} extends Controller
         return {{ model }}Resource::collection( ${{ modelVariable }}s );
     }
 
-    public function show( {{ model }} ${{ modelVariable }} )
+    public function show( {{ model }} ${{ modelVariable }} ): {{ model }}Resource
     {
         return new {{ model }}Resource( ${{ modelVariable }} );
     }
 
 
-    public function store( {{ storeRequest }} $request )
+    public function store( {{ storeRequest }} $request ): {{ model }}Resource
     {
-        ${{ modelVariable }} = {{ model }}::create( $request->all() );
-        return new {{ model }}Resource( $state );
+        $data = $request->validated();
+
+        ${{ modelVariable }} = DB::transaction( fn() => {{ model }}::create( $data ) );
+        return new {{ model }}Resource( ${{ modelVariable }} );
     }
 
-    public function update( {{ updateRequest }} $request, {{ model }} ${{ modelVariable }} )
+    public function update( {{ updateRequest }} $request, {{ model }} ${{ modelVariable }} ): {{ model }}Resource
     {
         ${{ modelVariable }}->update( $request->all() );
-        return new {{ model }}Resource( $state );
+        return new {{ model }}Resource( ${{ modelVariable }} );
     }
 
-    public function destroy( {{ model }} ${{ modelVariable }} )
+    public function destroy( {{ model }} ${{ modelVariable }} ): Response
     {
         ${{ modelVariable }}->delete();
         return response()->noContent();

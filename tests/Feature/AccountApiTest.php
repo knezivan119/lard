@@ -152,7 +152,7 @@ class AccountApiTest extends TestCase
         ] );
 
         $this->putJson( $this->url( $account->id ), $updated )
-            ->assertStatus( 500 )
+            ->assertStatus( 409 )
         ;
     }
 

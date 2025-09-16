@@ -38,10 +38,23 @@ return new class extends Migration
                 ->comment( 'JSON' )
             ;
 
-            $table->timestamps();
+            $table->timestampsTz();
 
             // $table->unique( [ 'account_id', 'name' ] );
         });
+
+        // Partial unique ignores deleted
+        // DB::statement("
+        //   CREATE UNIQUE INDEX {{ table }}_uniq_account_name_active
+        //   ON {{ table }} (account_id, name)
+        //   WHERE status <> 'deleted'
+        // ");
+
+        // Trigram index for ILIKE %term% on name
+        // DB::statement("
+        //   CREATE INDEX {{ table }}_name_trgm
+        //   ON {{ table }} USING gin (name gin_trgm_ops)
+        // ");
     }
 
     public function down(): void
