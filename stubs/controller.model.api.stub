@@ -26,15 +26,16 @@ class {{ class }} extends Controller
         return {{ model }}Resource::collection( ${{ modelVariable }}s );
     }
 
-    public function all( Request $request ): AnonymousResourceCollection
-    {
-        ${{ modelVariable }}s = {{ model }}::select( 'id', 'code', 'name' )
-            ->where( 'status', {{ model }}StatusEnum::Active )
-            ->get()
-        ;
+    // public function all( Request $request ): AnonymousResourceCollection
+    // {
+    //     ${{ modelVariable }}s = {{ model }}::select( 'id', 'code', 'name' )
+    //         ->where( 'status', {{ model }}StatusEnum::Active )
+    //         ->get()
+    //     ;
 
-        return {{ model }}Resource::collection( ${{ modelVariable }}s );
-    }
+    //     return {{ model }}Resource::collection( ${{ modelVariable }}s );
+    // }
+
 
     public function show( {{ model }} ${{ modelVariable }} ): {{ model }}Resource
     {
@@ -50,11 +51,13 @@ class {{ class }} extends Controller
         return new {{ model }}Resource( ${{ modelVariable }} );
     }
 
+
     public function update( {{ updateRequest }} $request, {{ model }} ${{ modelVariable }} ): {{ model }}Resource
     {
         ${{ modelVariable }}->update( $request->all() );
         return new {{ model }}Resource( ${{ modelVariable }} );
     }
+
 
     public function destroy( {{ model }} ${{ modelVariable }} ): Response
     {
