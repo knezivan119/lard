@@ -2,19 +2,164 @@
 
 namespace {{ namespace }};
 
+use App\Models\Example;
+use App\Enums\ExampleStatusEnum;
+
+use Carbon\Carbon;
+use Illuminate\Foundation\Testing\Concerns\InteractsWithDatabase;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
+use Laravel\Sanctum\Sanctum;
 use Tests\TestCase;
 
 class {{ class }} extends TestCase
 {
-    /**
-     * A basic feature test example.
-     */
-    public function test_example(): void
-    {
-        $response = $this->get('/');
+    use RefreshDatabase;
+    use InteractsWithDatabase;
 
-        $response->assertStatus(200);
+    public string $baseUrl = '/api/v1/examples';
+
+    protected string $table = 'examples';
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        $this->artisan( 'db:seed', [ '--class' => 'Database\Seeders\TestingSeeder' ] );
     }
+
+    private function payload( array $overrides = [] ): array
+    {
+        $base = [
+            'name' => 'Tandara Mandara',
+            'desc' => 'Some description',
+            'status' => ExampleStatusEnum::Draft,
+        ];
+
+        return array_replace_recursive( $base, $overrides );
+    }
+
+
+
+    public function test_create(): void
+    {
+        $this->signIn();
+
+        $request = [
+            // override payload
+        ];
+
+        $response = $this->postJson( $this->url(), $this->payload( $request ) );
+        $response->assertStatus( 201 );
+
+        $expected = [
+            'name' => $this->payload()['name'],
+            'email' => $this->payload()['email']
+        ];
+
+        $this->assertDatabaseHas( $this->table, $expected );
+
+        $response->assertJsonStructure([
+            'data' => [
+                'id', 'name', 'status', 'desc', 'served_at',
+            ],
+        ]);
+    }
+
+
+    public function test_updateOutdatedProtection(): void
+    {
+        $this->signIn();
+
+        # CREATE RECORD
+        $record = Example::factory()->create();
+
+        # MANIPULATE
+        $request = [
+            'name' => 'Tandara Mandara F',
+            'email' => 'test2@example.com',
+            'served_at' => Carbon::now()->subMinutes( 10 ),
+        ];
+
+        $response = $this->putJson( $this->url( data_get( $record, 'id' ) ), $request );
+        $response->assertStatus( 409 );
+    }
+
+
+    public function test_update(): void
+    {
+        $this->signIn();
+
+        # CREATE RECORD
+        $record = Example::factory()->create();
+
+        # MANIPULATE
+        $request = [
+            'name' => 'Tandara Mandara Up',
+            'desc' => 'Hello, this is updated!',
+            'served_at' => Carbon::now(),
+        ];
+
+        $response = $this->putJson( $this->url( data_get( $record, 'id' ) ), $request );
+        $response->assertStatus( 200 );
+
+        $expected = $request;
+        unset( $expected['served_at'] );
+
+        $this->assertDatabaseHas( $this->table, $expected );
+    }
+
+
+
+    public function test_show(): void
+    {
+        $this->signIn();
+
+        # CREATE RECORD
+        $record = Example::factory()->create();
+
+        # MANIPULATE
+        $response = $this->get( $this->url( data_get( $record, 'id' ) ) );
+
+        $response->assertStatus( 200 );
+        $response->assertJsonStructure([
+            'data' => [
+                'id', 'name', 'status', 'desc', 'served_at',
+            ],
+        ]);
+    }
+
+
+    public function test_index(): void
+    {
+        $this->signIn();
+
+        $params = [
+            'rowsPerPage' => 5,
+            // 'page' => 1,
+        ];
+
+        $response = $this->get( $this->url(), $params );
+
+        $response->assertStatus( 200 );
+        $response->assertJsonStructure([
+            'data' => [
+                '*' => [ 'id', 'name', 'status', 'served_at', 'desc' ],
+            ],
+        ]);
+    }
+
+
+    public function test_delete(): void
+    {
+        $this->signIn();
+
+        # CREATE RECORD
+        $record = Example::factory()->create();
+
+        # MANIPULATE
+        $response = $this->delete( $this->url( data_get( $record, 'id' ) ) );
+        $response->assertStatus( 204 );
+    }
+
 }

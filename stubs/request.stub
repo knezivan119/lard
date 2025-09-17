@@ -6,7 +6,7 @@ use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 // use Illuminate\Validation\Rules\File;
 // use Illuminate\Support\Str;
-// use App\Enums\ExampleStatusEnum;       // swap per request
+use App\Enums\ExampleStatusEnum;    // swap per request
 // use App\Models\Account;             // ACC!
 // use Illuminate\Support\Facades\Auth; // ACC!
 
@@ -15,23 +15,23 @@ class {{ class }} extends FormRequest
     // Uncomment if you prefer to stop on first failure
     // protected $stopOnFirstFailure = true;
 
-    public function authorize( ): bool
+    public function authorize(): bool
     {
         // ACC! basic tenant gate
-        // return Auth::check( ) && Auth::user( )->accounts( )->exists( );
+        // return Auth::check() && Auth::user()->accounts()->exists();
 
         // Or defer to a policy (example)
-        // return $this->user( )?->can( 'update', $this->routeModel( ) ) ?? false;
+        // return $this->user()?->can( 'update', $this->routeModel() ) ?? false;
 
         return true;
     }
 
-    public function rules( ): array
+    public function rules(): array
     {
         $isCreate = $this->isMethod( 'POST' );
-        $id = $this->routeId( );
+        // $id = $this->routeId();
         // ACC!
-        // $accountId = Auth::user( )->accounts( )->value( 'accounts.id' );
+        // $accountId = Auth::user()->accounts()->value( 'accounts.id' );
 
         return [
             # Strings
@@ -57,10 +57,10 @@ class {{ class }} extends FormRequest
             ],
 
             # Enums
-            // 'status' => [
-            //     $isCreate ? 'required' : 'sometimes',
-            //     Rule::enum( ExampleStatusEnum::class ),
-            // ],
+            'status' => [
+                $isCreate ? 'required' : 'sometimes',
+                Rule::enum( ExampleStatusEnum::class ),
+            ],
 
             # Booleans and numbers
             // 'is_active' => [ $isCreate ? 'required' : 'sometimes', 'boolean' ],
@@ -73,7 +73,7 @@ class {{ class }} extends FormRequest
             // 'starts_at' => [ 'required', 'date', 'after_or_equal:today' ],
             // 'ends_at'   => [ 'required', 'date', 'after:starts_at' ],
             // Exact ISO format if you need it:
-            // 'served_at' => [ 'nullable', 'date_format:Y-m-d\TH:i:sP' ],
+            'served_at' => [ 'nullable', 'date_format:Y-m-d\TH:i:sP' ],
 
             # Emails and URLs
             // 'email' => [ 'required', 'string', 'lowercase', 'email:rfc,dns' ],
@@ -113,7 +113,7 @@ class {{ class }} extends FormRequest
         ];
     }
 
-    public function messages( ): array
+    public function messages(): array
     {
         return [
             // 'name.required' => 'Please enter a name.',
@@ -121,7 +121,7 @@ class {{ class }} extends FormRequest
         ];
     }
 
-    public function attributes( ): array
+    public function attributes(): array
     {
         return [
             // 'desc'      => 'description',
@@ -129,9 +129,9 @@ class {{ class }} extends FormRequest
         ];
     }
 
-    protected function prepareForValidation( ): void
+    protected function prepareForValidation(): void
     {
-        $data = $this->all( );
+        $data = $this->all();
 
         // Trim and collapse whitespace
         if ( isset( $data['name'] ) ) {
@@ -139,18 +139,18 @@ class {{ class }} extends FormRequest
         }
 
         // Normalise booleans commonly sent as strings
-        foreach ( [ 'is_active' ] as $key ) {
-            if ( array_key_exists( $key, $data ) ) {
-                $data[$key] = filter_var( $data[$key], FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE );
-            }
-        }
+        // foreach ( [ 'is_active' ] as $key ) {
+        //     if ( array_key_exists( $key, $data ) ) {
+        //         $data[$key] = filter_var( $data[$key], FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE );
+        //     }
+        // }
 
         // Accept JSON strings for meta/extra and decode
         foreach ( [ 'extra', 'meta' ] as $key ) {
-            if ( isset( $data[$key] ) && is_string( $data[$key] ) ) {
-                $decoded = json_decode( $data[$key], true );
-                if ( json_last_error( ) === JSON_ERROR_NONE ) {
-                    $data[$key] = $decoded;
+            if ( isset( $data[ $key ] ) && is_string( $data[ $key ] ) ) {
+                $decoded = json_decode( $data[ $key ], true );
+                if ( json_last_error() === JSON_ERROR_NONE ) {
+                    $data[ $key ] = $decoded;
                 }
             }
         }
@@ -158,38 +158,38 @@ class {{ class }} extends FormRequest
         $this->replace( $data );
     }
 
-    protected function passedValidation( ): void
+    protected function passedValidation(): void
     {
         // Derive or reshape after validation if needed
         // $this->merge( [ 'slug' => Str::slug( $this->validated( 'name' ) ) ] );
     }
 
     # Helpers
-    protected function routeId( ): int|string|null
-    {
-        // Try common keys
-        foreach ( [ 'id', 'tandara', 'model' ] as $key ) {
-            $val = $this->route( $key );
-            if ( $val ) {
-                return is_object( $val ) && method_exists( $val, 'getKey' ) ? $val->getKey( ) : $val;
-            }
-        }
+    // protected function routeId(): int|string|null
+    // {
+    //     // Try common keys
+    //     foreach ( [ 'id', 'tandara', 'model' ] as $key ) {
+    //         $val = $this->route( $key );
+    //         if ( $val ) {
+    //             return is_object( $val ) && method_exists( $val, 'getKey' ) ? $val->getKey() : $val;
+    //         }
+    //     }
 
-        // Fallback: first scalar or model key among route parameters
-        $params = $this->route( )?->parameters( ) ?? [ ];
-        foreach ( $params as $p ) {
-            if ( is_object( $p ) && method_exists( $p, 'getKey' ) ) {
-                return $p->getKey( );
-            }
-            if ( is_scalar( $p ) ) {
-                return (int) $p;
-            }
-        }
-        return null;
-    }
+    //     // Fallback: first scalar or model key among route parameters
+    //     $params = $this->route()?->parameters() ?? [];
+    //     foreach ( $params as $p ) {
+    //         if ( is_object( $p ) && method_exists( $p, 'getKey' ) ) {
+    //             return $p->getKey();
+    //         }
+    //         if ( is_scalar( $p ) ) {
+    //             return (int) $p;
+    //         }
+    //     }
+    //     return null;
+    // }
 
     // Example if you prefer policy based authorisation tied to a route model
-    // protected function routeModel( ): mixed
+    // protected function routeModel(): mixed
     // {
     //     $param = $this->route( 'tandara' ); // swap per route name
     //     return is_object( $param ) ? $param : null;

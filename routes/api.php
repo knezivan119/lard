@@ -3,6 +3,7 @@
 use App\Http\Controllers\AccountController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\TandaraController;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -36,5 +37,6 @@ Route::prefix( 'v1' )->group( function () {
         Route::post('/accounts/{account}/logo', [ AccountController::class, 'storeLogo' ]);
         Route::apiResource( 'accounts', AccountController::class );
 
+        Route::apiResource( 'tandaras', TandaraController::class );
     });
 });
