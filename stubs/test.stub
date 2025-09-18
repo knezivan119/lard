@@ -31,7 +31,7 @@ class {{ class }} extends TestCase
     private function payload( array $overrides = [] ): array
     {
         $base = [
-            'name' => 'Tandara Mandara',
+            'name' => 'Example Mandara',
             'desc' => 'Some description',
             'status' => ExampleStatusEnum::Draft,
         ];
@@ -54,7 +54,8 @@ class {{ class }} extends TestCase
 
         $expected = [
             'name' => $this->payload()['name'],
-            'email' => $this->payload()['email']
+            'desc' => $this->payload()['desc'],
+            // 'status' => $this->payload()['status'],
         ];
 
         $this->assertDatabaseHas( $this->table, $expected );
@@ -76,7 +77,7 @@ class {{ class }} extends TestCase
 
         # MANIPULATE
         $request = [
-            'name' => 'Tandara Mandara F',
+            'name' => 'Example Mandara F',
             'email' => 'test2@example.com',
             'served_at' => Carbon::now()->subMinutes( 10 ),
         ];
@@ -95,9 +96,10 @@ class {{ class }} extends TestCase
 
         # MANIPULATE
         $request = [
-            'name' => 'Tandara Mandara Up',
+            'name' => 'Example Mandara Up',
             'desc' => 'Hello, this is updated!',
             'served_at' => Carbon::now(),
+            'extra' => json_encode( [ 'hello' => 'world' ] ),
         ];
 
         $response = $this->putJson( $this->url( data_get( $record, 'id' ) ), $request );
@@ -136,6 +138,7 @@ class {{ class }} extends TestCase
 
         $params = [
             'rowsPerPage' => 5,
+            'search' => [],
             // 'page' => 1,
         ];
 

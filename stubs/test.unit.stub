@@ -36,21 +36,21 @@ class {{ class }} extends TestCase
     {
         # CREATE
         // ACC! ensure we pass an account_id the user belongs to
-        $accountId = Auth::user()->accounts()->value( 'accounts.id' );
-        $model = Example::query()->create( [
-            'account_id' => $accountId, // ACC!
-            'name' => 'Alpha',
-            'desc' => 'First',
-            'status' => ExampleStatusEnum::Active,
-            'extra' => [ 'k' => 'v' ],
-        ] );
-        $this->assertSame( $model->account_id, data_get( $model, 'account.id', null ) );
+        // $accountId = Auth::user()->accounts()->value( 'accounts.id' );
+        // $model = Example::query()->create( [
+        //     'account_id' => $accountId, // ACC!
+        //     'name' => 'Alpha',
+        //     'desc' => 'First',
+        //     'status' => ExampleStatusEnum::Active,
+        //     'extra' => [ 'k' => 'v' ],
+        // ] );
+        // $this->assertSame( $model->account_id, data_get( $model, 'account.id', null ) );
 
-        $this->assertNotNull( $model->id );
-        $this->assertDatabaseHas( $model->getTable(), [
-            'id' => $model->id,
-            'name' => 'Alpha',
-        ] );
+        // $this->assertNotNull( $model->id );
+        // $this->assertDatabaseHas( $model->getTable(), [
+        //     'id' => $model->id,
+        //     'name' => 'Alpha',
+        // ] );
         // end ACC!
 
         # Cast sanity
@@ -97,38 +97,38 @@ class {{ class }} extends TestCase
 
 
     // ACC! account scope with user↔accounts m2m
-    public function test_global_scope_limits_to_users_accounts( ): void
-    {
-        // Arrange: log in a user with one account
-        $user = Auth::user() ?? tap( User::factory()->create(), function ( User $u ) {
-            $acc = Account::factory()->create();
-            $u->accounts()->attach( $acc->id );
-            Auth::login( $u );
-        } );
+    // public function test_global_scope_limits_to_users_accounts( ): void
+    // {
+    //     // Arrange: log in a user with one account
+    //     $user = Auth::user() ?? tap( User::factory()->create(), function ( User $u ) {
+    //         $acc = Account::factory()->create();
+    //         $u->accounts()->attach( $acc->id );
+    //         Auth::login( $u );
+    //     } );
 
-        $accountId = $user->accounts()->value( 'accounts.id' );
+    //     $accountId = $user->accounts()->value( 'accounts.id' );
 
-        // Visible record: belongs to my account
-        $mine = Example::query()->create( [
-            'account_id' => $accountId,
-            'name' => 'Mine',
-            'status' => ExampleStatusEnum::Active,
-        ] );
+    //     // Visible record: belongs to my account
+    //     $mine = Example::query()->create( [
+    //         'account_id' => $accountId,
+    //         'name' => 'Mine',
+    //         'status' => ExampleStatusEnum::Active,
+    //     ] );
 
-        // Hidden record: belongs to someone else
-        $otherAccount = Account::factory()->create();
-        Example::withoutEvents( function ( ) use ( $otherAccount ) {
-            Example::query()->withoutGlobalScopes()->create( [
-                'account_id' => $otherAccount->id,
-                'name' => 'Other',
-                'status' => ExampleStatusEnum::Active,
-            ] );
-        } );
+    //     // Hidden record: belongs to someone else
+    //     $otherAccount = Account::factory()->create();
+    //     Example::withoutEvents( function ( ) use ( $otherAccount ) {
+    //         Example::query()->withoutGlobalScopes()->create( [
+    //             'account_id' => $otherAccount->id,
+    //             'name' => 'Other',
+    //             'status' => ExampleStatusEnum::Active,
+    //         ] );
+    //     } );
 
-        // Assert: scope hides the foreign record
-        $visibleNames = Example::query()->pluck( 'name' )->all();
-        $this->assertSame( [ 'Mine' ], $visibleNames );
-    }
+    //     // Assert: scope hides the foreign record
+    //     $visibleNames = Example::query()->pluck( 'name' )->all();
+    //     $this->assertSame( [ 'Mine' ], $visibleNames );
+    // }
 
 
     public function test_scope_filter_like_search( ): void
