@@ -410,3 +410,17 @@ sail php -d memory_limit=1G vendor/bin/phpstan analyse
 sail php vendor/bin/phpstan clear-result-cache
 ```
 
+
+## Cloning
+* Replace `COMPOSE_PROJECT_NAME` in `.env` value with new name
+
+```bash
+docker run --rm \
+  -u "$(id -u):$(id -g)" \
+  -v "$PWD":/var/www/html \
+  -w /var/www/html \
+  laravelsail/php84-composer:latest \
+  composer install --no-interaction --prefer-dist
+```
+
+then `sail up` :)
